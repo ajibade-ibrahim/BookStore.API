@@ -1,4 +1,6 @@
-﻿using BookStore.API.Contracts;
+﻿using System.Reflection;
+using AutoMapper;
+using BookStore.API.Contracts;
 using BookStore.API.Data;
 using BookStore.API.Extensions;
 using BookStore.API.Services;
@@ -65,6 +67,7 @@ namespace BookStore.API
 
             services.AddSwaggerConfiguration();
             services.AddSingleton<ILoggerService, NLogService>();
+            services.AddAutoMapper(Assembly.Load("BookStore.Services"));
             services.AddControllers();
         }
     }
