@@ -1,9 +1,13 @@
 ﻿using System.Reflection;
 using AutoMapper;
 using BookStore.API.Contracts;
-using BookStore.API.Data;
 using BookStore.API.Extensions;
 using BookStore.API.Services;
+using BookStore.Data;
+using BookStore.Data.Repositories;
+using BookStore.Data.Repositories.Contracts;
+using BookStore.Services;
+using BookStore.Services.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -51,10 +55,12 @@ namespace BookStore.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(
-                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<BookStoreDbContext>(
+                options => options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    sqlServerOptionsAction => sqlServerOptionsAction.MigrationsAssembly("BookStore.Data")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<BookStoreDbContext>();
             services.AddCors(
                 setup => setup.AddPolicy(
                     "BlazorAppPolicy",
@@ -67,6 +73,8 @@ namespace BookStore.API
 
             services.AddSwaggerConfiguration();
             services.AddSingleton<ILoggerService, NLogService>();
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<IAuthorService, AuthorService>();
             services.AddAutoMapper(Assembly.Load("BookStore.Services"));
             services.AddControllers();
         }
