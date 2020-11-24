@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using AutoMapper;
 using BookStore.API.Contracts;
 using BookStore.API.Extensions;
@@ -10,7 +11,11 @@ using BookStore.Services;
 using BookStore.Services.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +25,8 @@ namespace BookStore.API
 {
     public class Startup
     {
+        private const string ApplicationProblemJson = "application/problem+json";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -76,7 +83,41 @@ namespace BookStore.API
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IAuthorService, AuthorService>();
             services.AddAutoMapper(Assembly.Load("BookStore.Services"));
-            services.AddControllers();
+            services.AddControllers().ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction());
+        }
+
+        private static Action<ApiBehaviorOptions> ApiBehaviorOptionsSetupAction()
+        {
+            return setupAction => setupAction.InvalidModelStateResponseFactory = context =>
+            {
+                var httpContext = context.HttpContext;
+                var problemDetailsFactory = httpContext.RequestServices
+                    .GetRequiredService<ProblemDetailsFactory>();
+
+                var problemDetails = problemDetailsFactory.CreateValidationProblemDetails(
+                    httpContext,
+                    context.ModelState);
+                problemDetails.Detail = "See errors section for details";
+                problemDetails.Instance = httpContext.Request.Path;
+
+                var containsUnparsedArguments = ((ActionExecutingContext)context).ActionArguments.Count
+                    != context.ActionDescriptor.Parameters.Count;
+
+                if (!containsUnparsedArguments && !context.ModelState.IsValid)
+                {
+                    problemDetails.Status = StatusCodes.Status422UnprocessableEntity;
+                    problemDetails.Title = "One or more validation errors occurred.";
+                    problemDetails.Type = "https://tools.ietf.org/html/rfc7807";
+                }
+
+                return new UnprocessableEntityObjectResult(problemDetails)
+                {
+                    ContentTypes =
+                    {
+                        ApplicationProblemJson
+                    }
+                };
+            };
         }
     }
 }
