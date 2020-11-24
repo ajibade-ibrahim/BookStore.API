@@ -6,9 +6,22 @@
     <members>
         <member name="M:BookStore.API.Controller.AuthorsController.Get">
             <summary>
-            Gets all existing authors
+              Gets all existing authors
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Get(System.Guid)">
+            <summary>
+              Gets author with the specified id.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Post(BookStore.Domain.Entities.Dto.AuthorCreationDto)">
+            <summary>
+              Creates an author with the provided information.
+            </summary>
+            <param name="authorCreationDto"></param>
         </member>
     </members>
 </doc>

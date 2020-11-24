@@ -1,9 +1,17 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using BookStore.API.Contracts;
+using BookStore.API.Extensions;
+using BookStore.Domain.Entities.Dto;
 using BookStore.Services.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,6 +29,16 @@ namespace BookStore.API.Controller
 
         private readonly IAuthorService _authorService;
         private readonly ILoggerService _loggerService;
+
+        public override ActionResult ValidationProblem(
+            [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
+        {
+            var apiBehaviorOptions = HttpContext.RequestServices
+                .GetRequiredService<IOptions<ApiBehaviorOptions>>()
+                .Value;
+            var result = apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+            return (ActionResult)result;
+        }
 
         // DELETE api/<AuthorsController>/5
         [HttpDelete("{id}")]
@@ -49,15 +67,17 @@ namespace BookStore.API.Controller
             catch (Exception exception)
             {
                 _loggerService.LogError(
-                    $"Error occurred: {exception.Message} {Environment.NewLine} {exception.StackTrace}");
+                    $"Error occurred: {exception.GetMessageWithStackTrace()}");
 
-                return GetStatusCodeResult(StatusCodes.Status500InternalServerError, "Error occurred retrieving authors.");
+                return GetStatusCodeResult(
+                    StatusCodes.Status500InternalServerError,
+                    "Error occurred retrieving authors.");
             }
         }
 
         // GET api/<AuthorsController>/5
         /// <summary>
-        /// Gets author with the specified id.
+        ///   Gets author with the specified id.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -80,7 +100,7 @@ namespace BookStore.API.Controller
             catch (Exception exception)
             {
                 _loggerService.LogError(
-                    $"Error occurred: {exception.Message} {Environment.NewLine} {exception.StackTrace}");
+                    $"Error occurred: {exception.GetMessageWithStackTrace()}");
 
                 return GetStatusCodeResult(
                     StatusCodes.Status500InternalServerError,
@@ -89,9 +109,45 @@ namespace BookStore.API.Controller
         }
 
         // POST api/<AuthorsController>
+        /// <summary>
+        ///   Creates an author with the provided information.
+        /// </summary>
+        /// <param name="authorCreationDto"></param>
         [HttpPost]
-        public void Post([FromBody] string value)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Post([FromBody] AuthorCreationDto authorCreationDto)
         {
+            if (authorCreationDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {LogModelStateErrors()}");
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                var author = await _authorService.CreateAuthor(authorCreationDto);
+                _loggerService.LogInfo($"Author with Id: {author.Id} created");
+
+                return CreatedAtAction(
+                    "Get",
+                    new
+                    {
+                        author.Id
+                    },
+                    author);
+            }
+            catch (Exception exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return GetStatusCodeResult(StatusCodes.Status500InternalServerError, "Error occurred creating Author.");
+            }
         }
 
         // PUT api/<AuthorsController>/5
@@ -108,6 +164,19 @@ namespace BookStore.API.Controller
                 {
                     message
                 });
+        }
+
+        private string LogModelStateErrors()
+        {
+            var builder = new StringBuilder();
+            var errorKeys = ModelState.Keys.Where(key => ModelState[key].Errors.Any());
+
+            foreach (var key in errorKeys)
+            {
+                builder.AppendLine($"{key}: {string.Join(';', ModelState[key].Errors.Select(x => x.ErrorMessage))}");
+            }
+
+            return builder.ToString();
         }
     }
 }
