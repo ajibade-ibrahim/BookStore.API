@@ -16,7 +16,7 @@ namespace BookStore.Data.Repositories
         /// </summary>
         /// <param name="author"></param>
         /// <returns></returns>
-        public async Task CreateAuthor(Author author)
+        public async Task CreateAuthorAsync(Author author)
         {
             Add(author);
             await SaveAsync();
@@ -27,7 +27,7 @@ namespace BookStore.Data.Repositories
         /// </summary>
         /// <param name="author"></param>
         /// <returns></returns>
-        public async Task UpdateAuthor(Author author)
+        public async Task UpdateAuthorAsync(Author author)
         {
             Update(author);
             await SaveAsync();

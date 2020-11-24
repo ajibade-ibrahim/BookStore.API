@@ -5,7 +5,7 @@ namespace BookStore.Data.Repositories.Contracts
 {
     public interface IAuthorRepository : IRepository<Author>
     {
-        Task CreateAuthor(Author author);
-        Task UpdateAuthor(Author author);
+        Task CreateAuthorAsync(Author author);
+        Task UpdateAuthorAsync(Author author);
     }
 }

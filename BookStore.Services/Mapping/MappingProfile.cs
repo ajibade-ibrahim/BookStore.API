@@ -9,6 +9,7 @@ namespace BookStore.Services.Mapping
         public MappingProfile()
         {
             CreateMap<Author, AuthorDto>().ReverseMap();
+            CreateMap<AuthorCreationDto, Author>();
             CreateMap<Book, BookDto>().ReverseMap();
         }
     }
