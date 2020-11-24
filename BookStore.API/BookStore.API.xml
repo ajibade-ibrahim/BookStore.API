@@ -4,5 +4,11 @@
         <name>BookStore.API</name>
     </assembly>
     <members>
+        <member name="M:BookStore.API.Controller.AuthorsController.Get">
+            <summary>
+            Gets all existing authors
+            </summary>
+            <returns></returns>
+        </member>
     </members>
 </doc>

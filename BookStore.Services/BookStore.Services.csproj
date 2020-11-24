@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -12,10 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="..\BookStore.Data\BookStore.Data.csproj" />
     <ProjectReference Include="..\BookStore.Domain\BookStore.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Contracts\" />
   </ItemGroup>
 
 </Project>
