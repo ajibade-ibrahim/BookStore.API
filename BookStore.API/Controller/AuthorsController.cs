@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using BookStore.API.Contracts;
 using BookStore.API.Extensions;
 using BookStore.Domain.Entities.Dto;
+using BookStore.Domain.Exceptions;
 using BookStore.Services.Contracts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -165,7 +167,7 @@ namespace BookStore.API.Controller
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] AuthorUpdateDto author)
         {
-            if (id == Guid.Empty || id != author.Id)
+            if (id == Guid.Empty)
             {
                 return BadRequest(GetMessageObject("Invalid identifier."));
             }
@@ -178,10 +180,41 @@ namespace BookStore.API.Controller
 
             try
             {
-                await _authorService.UpdateAuthor(author);
+                await _authorService.UpdateAuthor(id, author);
                 return NoContent();
             }
             catch (InvalidOperationException exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return NotFound($"Author with id: {id} not found.");
+            }
+            catch (Exception exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult($"Error occurred updating author with id: {id}");
+            }
+        }
+
+        /// <summary>
+        /// Updates an author with provided information.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="jsonPatchDocument"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Patch(Guid id, [FromBody] JsonPatchDocument<AuthorUpdateDto> jsonPatchDocument)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(GetMessageObject("Invalid identifier."));
+            }
+
+            try
+            {
+                await _authorService.PatchAuthor(id, jsonPatchDocument);
+                return NoContent();
+            }
+            catch (AuthorNotFoundException exception)
             {
                 _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return NotFound($"Author with id: {id} not found.");
