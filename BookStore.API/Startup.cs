@@ -27,6 +27,39 @@ namespace BookStore.API
     {
         private const string ApplicationProblemJson = "application/problem+json";
 
+        private static Action<ApiBehaviorOptions> ApiBehaviorOptionsSetupAction()
+        {
+            return setupAction => setupAction.InvalidModelStateResponseFactory = context =>
+            {
+                var httpContext = context.HttpContext;
+                var problemDetailsFactory = httpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
+
+                var problemDetails = problemDetailsFactory.CreateValidationProblemDetails(
+                    httpContext,
+                    context.ModelState);
+                problemDetails.Detail = "See errors section for details";
+                problemDetails.Instance = httpContext.Request.Path;
+
+                var containsUnparsedArguments = ((ActionExecutingContext)context).ActionArguments.Count
+                    != context.ActionDescriptor.Parameters.Count;
+
+                if (!containsUnparsedArguments && !context.ModelState.IsValid)
+                {
+                    problemDetails.Status = StatusCodes.Status422UnprocessableEntity;
+                    problemDetails.Title = "One or more validation errors occurred.";
+                    problemDetails.Type = "https://tools.ietf.org/html/rfc7807";
+                }
+
+                return new UnprocessableEntityObjectResult(problemDetails)
+                {
+                    ContentTypes =
+                    {
+                        ApplicationProblemJson
+                    }
+                };
+            };
+        }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -83,41 +116,7 @@ namespace BookStore.API
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IAuthorService, AuthorService>();
             services.AddAutoMapper(Assembly.Load("BookStore.Services"));
-            services.AddControllers().ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction());
-        }
-
-        private static Action<ApiBehaviorOptions> ApiBehaviorOptionsSetupAction()
-        {
-            return setupAction => setupAction.InvalidModelStateResponseFactory = context =>
-            {
-                var httpContext = context.HttpContext;
-                var problemDetailsFactory = httpContext.RequestServices
-                    .GetRequiredService<ProblemDetailsFactory>();
-
-                var problemDetails = problemDetailsFactory.CreateValidationProblemDetails(
-                    httpContext,
-                    context.ModelState);
-                problemDetails.Detail = "See errors section for details";
-                problemDetails.Instance = httpContext.Request.Path;
-
-                var containsUnparsedArguments = ((ActionExecutingContext)context).ActionArguments.Count
-                    != context.ActionDescriptor.Parameters.Count;
-
-                if (!containsUnparsedArguments && !context.ModelState.IsValid)
-                {
-                    problemDetails.Status = StatusCodes.Status422UnprocessableEntity;
-                    problemDetails.Title = "One or more validation errors occurred.";
-                    problemDetails.Type = "https://tools.ietf.org/html/rfc7807";
-                }
-
-                return new UnprocessableEntityObjectResult(problemDetails)
-                {
-                    ContentTypes =
-                    {
-                        ApplicationProblemJson
-                    }
-                };
-            };
+            services.AddControllers().ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction()).AddNewtonsoftJson();
         }
     }
 }
