@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BookStore.Data.Repositories.Contracts;
 using BookStore.Domain.Entities;
 
@@ -30,6 +31,18 @@ namespace BookStore.Data.Repositories
         public async Task UpdateAuthorAsync(Author author)
         {
             Update(author);
+            await SaveAsync();
+        }
+
+        public async Task DeleteAuthorAsync(Guid id)
+        {
+            await Delete(id);
+            await SaveAsync();
+        }
+
+        public async Task DeleteAuthorAsync(Author author)
+        {
+            Delete(author);
             await SaveAsync();
         }
     }

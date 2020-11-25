@@ -27,6 +27,11 @@ namespace BookStore.Data.Repositories
             _table.Remove(await _table.FindAsync(id));
         }
 
+        public void Delete(T entity)
+        {
+            _table.Remove(entity);
+        }
+
         public async Task<bool> SaveAsync()
         {
             return await _dbContext.SaveChangesAsync() > 0;

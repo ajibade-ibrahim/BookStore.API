@@ -11,6 +11,7 @@ namespace BookStore.Data.Repositories.Contracts
         void Add(T entity);
         void Update(T entity);
         Task Delete(Guid id);
+        void Delete(T entity);
         Task<bool> SaveAsync();
     }
 }

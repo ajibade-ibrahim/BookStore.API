@@ -13,5 +13,6 @@ namespace BookStore.Services.Contracts
         Task<AuthorDto> CreateAuthor(AuthorCreationDto authorCreationDto);
         Task UpdateAuthor(Guid id, AuthorUpdateDto authorUpdateDto);
         Task PatchAuthor(Guid id, JsonPatchDocument<AuthorUpdateDto> jsonPatchDocument);
+        Task DeleteAuthor(Guid id);
     }
 }

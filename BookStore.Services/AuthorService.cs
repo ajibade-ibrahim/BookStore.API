@@ -84,6 +84,20 @@ namespace BookStore.Services
             await _authorRepository.SaveAsync();
         }
 
+        public async Task DeleteAuthor(Guid id)
+        {
+            ValidateId(id);
+
+            var author = await _authorRepository.GetByIdAsync(id);
+
+            if (author == null)
+            {
+                throw new AuthorNotFoundException(id);
+            }
+
+            await _authorRepository.DeleteAuthorAsync(id);
+        }
+
         private static void ValidateAuthor<T>(T author) where T : class
         {
             if (author == null)

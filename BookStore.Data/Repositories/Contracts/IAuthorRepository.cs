@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BookStore.Domain.Entities;
 
 namespace BookStore.Data.Repositories.Contracts
@@ -7,5 +8,6 @@ namespace BookStore.Data.Repositories.Contracts
     {
         Task CreateAuthorAsync(Author author);
         Task UpdateAuthorAsync(Author author);
+        Task DeleteAuthorAsync(Guid id);
     }
 }
