@@ -51,9 +51,37 @@ namespace BookStore.API.Controller
         }
 
         // DELETE api/<AuthorsController>/5
+        /// <summary>
+        /// Deletes the author with the specified id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Delete(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(GetMessageObject("Invalid identifier"));
+            }
+
+            try
+            {
+                await _authorService.DeleteAuthor(id);
+                return NoContent();
+            }
+            catch (AuthorNotFoundException exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult($"Author with id: {id} not found.");
+            }
+            catch (Exception exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult($"Error occurred deleting author with id: {id}.");
+            }
         }
 
         // GET: api/<AuthorsController>
@@ -165,6 +193,10 @@ namespace BookStore.API.Controller
         /// <param name="author"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Put(Guid id, [FromBody] AuthorUpdateDto author)
         {
             if (id == Guid.Empty)
@@ -183,7 +215,7 @@ namespace BookStore.API.Controller
                 await _authorService.UpdateAuthor(id, author);
                 return NoContent();
             }
-            catch (InvalidOperationException exception)
+            catch (AuthorNotFoundException exception)
             {
                 _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return NotFound($"Author with id: {id} not found.");
@@ -202,6 +234,10 @@ namespace BookStore.API.Controller
         /// <param name="jsonPatchDocument"></param>
         /// <returns></returns>
         [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Patch(Guid id, [FromBody] JsonPatchDocument<AuthorUpdateDto> jsonPatchDocument)
         {
             if (id == Guid.Empty)
