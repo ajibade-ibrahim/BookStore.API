@@ -8,7 +8,9 @@ using AutoMapper;
 using BookStore.Data.Repositories.Contracts;
 using BookStore.Domain.Entities;
 using BookStore.Domain.Entities.Dto;
+using BookStore.Domain.Exceptions;
 using BookStore.Services.Contracts;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace BookStore.Services
 {
@@ -47,17 +49,36 @@ namespace BookStore.Services
             return authorDto;
         }
 
-        public async Task UpdateAuthor(AuthorUpdateDto authorUpdateDto)
+        public async Task UpdateAuthor(Guid id, AuthorUpdateDto authorUpdateDto)
         {
-            ValidateId(authorUpdateDto.Id);
+            ValidateId(id);
             ValidateAuthor(authorUpdateDto);
 
-            var author = await _authorRepository.GetByIdAsync(authorUpdateDto.Id);
+            var author = await _authorRepository.GetByIdAsync(id);
 
             if (author == null)
             {
-                throw new InvalidOperationException($"Author with id:{authorUpdateDto.Id} not found.");
+                throw new AuthorNotFoundException(id);
             }
+
+            _mapper.Map(authorUpdateDto, author);
+            await _authorRepository.SaveAsync();
+        }
+
+        public async Task PatchAuthor(Guid id, JsonPatchDocument<AuthorUpdateDto> jsonPatchDocument)
+        {
+            ValidateId(id);
+            var author = await _authorRepository.GetByIdAsync(id);
+
+            if (author == null)
+            {
+                throw new AuthorNotFoundException(id);
+            }
+
+            var authorUpdateDto = _mapper.Map<AuthorUpdateDto>(author);
+            jsonPatchDocument.ApplyTo(authorUpdateDto);
+
+            ValidateAuthor(authorUpdateDto);
 
             _mapper.Map(authorUpdateDto, author);
             await _authorRepository.SaveAsync();
