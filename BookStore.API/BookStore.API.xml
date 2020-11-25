@@ -23,5 +23,13 @@
             </summary>
             <param name="authorCreationDto"></param>
         </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Put(System.Guid,BookStore.Domain.Entities.Dto.AuthorUpdateDto)">
+            <summary>
+            Updates an author with the provided information.
+            </summary>
+            <param name="id"></param>
+            <param name="author"></param>
+            <returns></returns>
+        </member>
     </members>
 </doc>

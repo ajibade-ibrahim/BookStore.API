@@ -21,6 +21,14 @@ namespace BookStore.API.Controller
     [ApiController]
     public class AuthorsController : ControllerBase
     {
+        private static object GetMessageObject(string message)
+        {
+            return new
+            {
+                message
+            };
+        }
+
         public AuthorsController(IAuthorService authorService, ILoggerService loggerService)
         {
             _authorService = authorService;
@@ -66,12 +74,8 @@ namespace BookStore.API.Controller
             }
             catch (Exception exception)
             {
-                _loggerService.LogError(
-                    $"Error occurred: {exception.GetMessageWithStackTrace()}");
-
-                return GetStatusCodeResult(
-                    StatusCodes.Status500InternalServerError,
-                    "Error occurred retrieving authors.");
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult("Error occurred retrieving authors.");
             }
         }
 
@@ -87,6 +91,11 @@ namespace BookStore.API.Controller
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(GetMessageObject("Invalid identifier."));
+            }
+
             _loggerService.LogInfo($"Getting author with id: {id}");
 
             try
@@ -99,12 +108,8 @@ namespace BookStore.API.Controller
             }
             catch (Exception exception)
             {
-                _loggerService.LogError(
-                    $"Error occurred: {exception.GetMessageWithStackTrace()}");
-
-                return GetStatusCodeResult(
-                    StatusCodes.Status500InternalServerError,
-                    $"Error occurred retrieving author with id: {id}.");
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult($"Error occurred retrieving author with id: {id}.");
             }
         }
 
@@ -146,24 +151,56 @@ namespace BookStore.API.Controller
             catch (Exception exception)
             {
                 _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
-                return GetStatusCodeResult(StatusCodes.Status500InternalServerError, "Error occurred creating Author.");
+                return InternalServerErrorResult("Error occurred creating Author.");
             }
         }
 
         // PUT api/<AuthorsController>/5
+        /// <summary>
+        /// Updates an author with the provided information.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="author"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(Guid id, [FromBody] AuthorUpdateDto author)
         {
+            if (id == Guid.Empty || id != author.Id)
+            {
+                return BadRequest(GetMessageObject("Invalid identifier."));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {LogModelStateErrors()}");
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                await _authorService.UpdateAuthor(author);
+                return NoContent();
+            }
+            catch (InvalidOperationException exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return NotFound($"Author with id: {id} not found.");
+            }
+            catch (Exception exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult($"Error occurred updating author with id: {id}");
+            }
         }
 
         private ObjectResult GetStatusCodeResult(int statusCode, string message)
         {
-            return StatusCode(
-                statusCode,
-                new
-                {
-                    message
-                });
+            return StatusCode(statusCode, GetMessageObject(message));
+        }
+
+        private ObjectResult InternalServerErrorResult(string message)
+        {
+            return GetStatusCodeResult(StatusCodes.Status500InternalServerError, message);
         }
 
         private string LogModelStateErrors()
