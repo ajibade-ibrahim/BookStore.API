@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using SystemValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -38,7 +39,7 @@ namespace BookStore.Services
 
         public async Task<AuthorDto> CreateAuthor(AuthorCreationDto authorCreationDto)
         {
-            ValidateAuthorCreationDto(authorCreationDto);
+            ValidateAuthor(authorCreationDto);
 
             var author = _mapper.Map<Author>(authorCreationDto);
             await _authorRepository.CreateAuthorAsync(author);
@@ -46,17 +47,33 @@ namespace BookStore.Services
             return authorDto;
         }
 
-        private static void ValidateAuthorCreationDto(AuthorCreationDto authorCreationDto)
+        public async Task UpdateAuthor(AuthorUpdateDto authorUpdateDto)
         {
-            if (authorCreationDto == null)
+            ValidateId(authorUpdateDto.Id);
+            ValidateAuthor(authorUpdateDto);
+
+            var author = await _authorRepository.GetByIdAsync(authorUpdateDto.Id);
+
+            if (author == null)
             {
-                throw new ArgumentException(nameof(authorCreationDto));
+                throw new InvalidOperationException($"Author with id:{authorUpdateDto.Id} not found.");
             }
 
-            var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(authorCreationDto);
+            _mapper.Map(authorUpdateDto, author);
+            await _authorRepository.SaveAsync();
+        }
+
+        private static void ValidateAuthor<T>(T author) where T : class
+        {
+            if (author == null)
+            {
+                throw new ArgumentException(nameof(author));
+            }
+
+            var validationContext = new SystemValidationContext(author);
             var validationResults = new List<ValidationResult>();
 
-            if (!Validator.TryValidateObject(authorCreationDto, validationContext, validationResults, true))
+            if (!Validator.TryValidateObject(author, validationContext, validationResults, true))
             {
                 var builder = new StringBuilder();
 
