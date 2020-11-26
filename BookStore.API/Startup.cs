@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using AutoMapper;
-using BookStore.API.Contracts;
 using BookStore.API.Extensions;
-using BookStore.API.Services;
 using BookStore.Data;
 using BookStore.Data.Repositories;
 using BookStore.Data.Repositories.Contracts;
@@ -21,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace BookStore.API
 {
@@ -119,7 +118,10 @@ namespace BookStore.API
             services.AddScoped<IBookService, BookService>();
             services.AddScoped<IBookRepository, BookRepository>();
             services.AddAutoMapper(Assembly.Load("BookStore.Services"));
-            services.AddControllers().ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction()).AddNewtonsoftJson();
+            services.AddControllers()
+                .ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction())
+                .AddNewtonsoftJson(
+                    options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
         }
     }
 }
