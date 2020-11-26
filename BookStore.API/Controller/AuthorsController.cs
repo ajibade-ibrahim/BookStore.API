@@ -8,6 +8,7 @@ using BookStore.Services.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BookStore.API.Controller
 {
@@ -15,14 +16,14 @@ namespace BookStore.API.Controller
     [ApiController]
     public class AuthorsController : BookStoreControllerBase
     {
-        public AuthorsController(IAuthorService authorService, ILoggerService loggerService)
+        public AuthorsController(IAuthorService authorService, ILogger<AuthorsController> logger)
         {
             _authorService = authorService;
-            _loggerService = loggerService;
+            _logger = logger;
         }
 
         private readonly IAuthorService _authorService;
-        private readonly ILoggerService _loggerService;
+        private readonly ILogger _logger;
 
         // DELETE api/<AuthorsController>/5
         /// <summary>
@@ -48,12 +49,12 @@ namespace BookStore.API.Controller
             }
             catch (AuthorNotFoundException exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult($"Author with id: {id} not found.");
             }
             catch (Exception exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult($"Error occurred deleting author with id: {id}.");
             }
         }
@@ -68,17 +69,17 @@ namespace BookStore.API.Controller
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Get()
         {
-            _loggerService.LogInfo("Getting all authors.");
+            _logger.LogInformation("Getting all authors.");
 
             try
             {
                 var authors = await _authorService.GetAllAuthors();
-                _loggerService.LogInfo($"Retrieved authors. Count: {authors.Count}.");
+                _logger.LogInformation($"Retrieved authors. Count: {authors.Count}.");
                 return Ok(authors);
             }
             catch (Exception exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult("Error occurred retrieving authors.");
             }
         }
@@ -100,19 +101,19 @@ namespace BookStore.API.Controller
                 return BadRequest(GetMessageObject("Invalid identifier."));
             }
 
-            _loggerService.LogInfo($"Getting author with id: {id}");
+            _logger.LogInformation($"Getting author with id: {id}");
 
             try
             {
                 var author = await _authorService.GetAuthor(id);
-                _loggerService.LogInfo(
+                _logger.LogInformation(
                     author == null ? $"Author with id: {id} not found" : $"Author with id: {id} found");
 
                 return author == null ? (IActionResult)NotFound() : Ok(author);
             }
             catch (Exception exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult($"Error occurred retrieving author with id: {id}.");
             }
         }
@@ -142,12 +143,12 @@ namespace BookStore.API.Controller
             }
             catch (AuthorNotFoundException exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return NotFound($"Author with id: {id} not found.");
             }
             catch (Exception exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult($"Error occurred updating author with id: {id}");
             }
         }
@@ -170,14 +171,14 @@ namespace BookStore.API.Controller
 
             if (!ModelState.IsValid)
             {
-                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
+                _logger.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
                 return ValidationProblem(ModelState);
             }
 
             try
             {
                 var author = await _authorService.CreateAuthor(authorCreationDto);
-                _loggerService.LogInfo($"Author with Id: {author.Id} created");
+                _logger.LogInformation($"Author with Id: {author.Id} created");
 
                 return CreatedAtAction(
                     "Get",
@@ -189,7 +190,7 @@ namespace BookStore.API.Controller
             }
             catch (Exception exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult("Error occurred creating Author.");
             }
         }
@@ -215,7 +216,7 @@ namespace BookStore.API.Controller
 
             if (!ModelState.IsValid)
             {
-                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
+                _logger.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
                 return ValidationProblem(ModelState);
             }
 
@@ -226,12 +227,12 @@ namespace BookStore.API.Controller
             }
             catch (AuthorNotFoundException exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return NotFound($"Author with id: {id} not found.");
             }
             catch (Exception exception)
             {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult($"Error occurred updating author with id: {id}");
             }
         }
