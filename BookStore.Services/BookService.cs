@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using BookStore.Data.Repositories.Contracts;
+using BookStore.Domain.Entities;
 using BookStore.Domain.Entities.Dto;
+using BookStore.Domain.Exceptions;
 using BookStore.Services.Contracts;
 
 namespace BookStore.Services
 {
-    public class BookService : IBookService
+    public class BookService : ServiceBase, IBookService
     {
-        public BookService(IBookRepository bookRepository, IMapper mapper)
+        public BookService(IBookRepository bookRepository, IAuthorRepository authorRepository, IMapper mapper)
         {
             _bookRepository = bookRepository;
+            _authorRepository = authorRepository;
             _mapper = mapper;
         }
 
         private readonly IBookRepository _bookRepository;
+        private readonly IAuthorRepository _authorRepository;
         private readonly IMapper _mapper;
 
         public async Task<IReadOnlyList<BookDto>> GetAllBooks()
@@ -27,18 +31,28 @@ namespace BookStore.Services
 
         public async Task<BookDto> GetBook(Guid id)
         {
-            ValidateBookId(id);
+            ValidateId(id);
 
             var book = await _bookRepository.GetByIdAsync(id);
             return book == null ? null : _mapper.Map<BookDto>(book);
         }
 
-        private static void ValidateBookId(Guid id)
+        public async Task<BookDto> CreateBook(BookCreationDto bookCreationDto)
         {
-            if (id == Guid.Empty)
+            ValidateEntity(bookCreationDto);
+            ValidateId(bookCreationDto.AuthorId);
+
+            var authorExists = await _authorRepository.Exists(bookCreationDto.AuthorId);
+
+            if (!authorExists)
             {
-                throw new ArgumentException("Invalid identifier provided.", nameof(id));
+                throw new AuthorNotFoundException(bookCreationDto.AuthorId);
             }
+
+            var book = _mapper.Map<Book>(bookCreationDto);
+            await _bookRepository.CreateBookAsync(book);
+
+            return _mapper.Map<BookDto>(book);
         }
     }
 }

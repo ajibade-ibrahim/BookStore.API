@@ -9,5 +9,6 @@ namespace BookStore.Services.Contracts
     {
         Task<IReadOnlyList<BookDto>> GetAllBooks();
         Task<BookDto> GetBook(Guid id);
+        Task<BookDto> CreateBook(BookCreationDto bookCreationDto);
     }
 }
