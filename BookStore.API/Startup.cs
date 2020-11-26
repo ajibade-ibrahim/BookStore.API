@@ -117,6 +117,7 @@ namespace BookStore.API
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IAuthorService, AuthorService>();
             services.AddScoped<IBookService, BookService>();
+            services.AddScoped<IBookRepository, BookRepository>();
             services.AddAutoMapper(Assembly.Load("BookStore.Services"));
             services.AddControllers().ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction()).AddNewtonsoftJson();
         }
