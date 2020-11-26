@@ -46,5 +46,11 @@
             <param name="author"></param>
             <returns></returns>
         </member>
+        <member name="M:BookStore.API.Controller.BooksController.GetBooks">
+            <summary>
+            Gets all books.
+            </summary>
+            <returns></returns>
+        </member>
     </members>
 </doc>

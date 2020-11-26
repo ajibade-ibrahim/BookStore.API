@@ -71,7 +71,7 @@ namespace BookStore.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddFile("Logs/{shortdate}_logfile.txt");
+            loggerFactory.AddFile($"Logs/{DateTime.Today.ToShortDateString()}_logfile.txt");
 
             if (env.IsDevelopment())
             {
