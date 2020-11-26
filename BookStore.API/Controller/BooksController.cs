@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BookStore.API.Extensions;
+using BookStore.Domain.Entities.Dto;
+using BookStore.Domain.Exceptions;
 using BookStore.Services.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -72,6 +74,57 @@ namespace BookStore.API.Controller
             try
             {
                 return Ok(await _bookService.GetAllBooks());
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult("Error occurred retrieving books.");
+            }
+        }
+
+        /// <summary>
+        /// Creates a book with the provided information.
+        /// </summary>
+        /// <param name="book"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateBook([FromBody] BookCreationDto book)
+        {
+            if (book == null)
+            {
+                return BadRequest();
+            }
+
+            if (book.AuthorId == Guid.Empty)
+            {
+                return BadRequest("Invalid author identifier");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                LogModelStateErrors(_logger);
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                var bookDto = await _bookService.CreateBook(book);
+                return CreatedAtAction(
+                    "GetBook",
+                    new
+                    {
+                        id = bookDto.Id
+                    },
+                    bookDto);
+            }
+            catch (AuthorNotFoundException exception)
+            {
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return NotFound($"Author with id:{book.AuthorId} not found.");
             }
             catch (Exception exception)
             {

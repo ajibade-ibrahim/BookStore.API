@@ -46,9 +46,16 @@
             <param name="author"></param>
             <returns></returns>
         </member>
+        <member name="M:BookStore.API.Controller.BooksController.GetBook(System.Guid)">
+            <summary>
+              Gets a book with the specified id.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
         <member name="M:BookStore.API.Controller.BooksController.GetBooks">
             <summary>
-            Gets all books.
+              Gets all books.
             </summary>
             <returns></returns>
         </member>
