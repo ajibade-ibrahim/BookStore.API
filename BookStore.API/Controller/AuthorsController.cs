@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using BookStore.API.Contracts;
 using BookStore.API.Extensions;
@@ -10,27 +8,13 @@ using BookStore.Services.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BookStore.API.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorsController : ControllerBase
+    public class AuthorsController : BookStoreControllerBase
     {
-        private static object GetMessageObject(string message)
-        {
-            return new
-            {
-                message
-            };
-        }
-
         public AuthorsController(IAuthorService authorService, ILoggerService loggerService)
         {
             _authorService = authorService;
@@ -40,19 +24,9 @@ namespace BookStore.API.Controller
         private readonly IAuthorService _authorService;
         private readonly ILoggerService _loggerService;
 
-        public override ActionResult ValidationProblem(
-            [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
-        {
-            var apiBehaviorOptions = HttpContext.RequestServices
-                .GetRequiredService<IOptions<ApiBehaviorOptions>>()
-                .Value;
-            var result = apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
-            return (ActionResult)result;
-        }
-
         // DELETE api/<AuthorsController>/5
         /// <summary>
-        /// Deletes the author with the specified id.
+        ///   Deletes the author with the specified id.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -143,92 +117,8 @@ namespace BookStore.API.Controller
             }
         }
 
-        // POST api/<AuthorsController>
         /// <summary>
-        ///   Creates an author with the provided information.
-        /// </summary>
-        /// <param name="authorCreationDto"></param>
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Post([FromBody] AuthorCreationDto authorCreationDto)
-        {
-            if (authorCreationDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {LogModelStateErrors()}");
-                return ValidationProblem(ModelState);
-            }
-
-            try
-            {
-                var author = await _authorService.CreateAuthor(authorCreationDto);
-                _loggerService.LogInfo($"Author with Id: {author.Id} created");
-
-                return CreatedAtAction(
-                    "Get",
-                    new
-                    {
-                        author.Id
-                    },
-                    author);
-            }
-            catch (Exception exception)
-            {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
-                return InternalServerErrorResult("Error occurred creating Author.");
-            }
-        }
-
-        // PUT api/<AuthorsController>/5
-        /// <summary>
-        /// Updates an author with the provided information.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="author"></param>
-        /// <returns></returns>
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Put(Guid id, [FromBody] AuthorUpdateDto author)
-        {
-            if (id == Guid.Empty)
-            {
-                return BadRequest(GetMessageObject("Invalid identifier."));
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {LogModelStateErrors()}");
-                return ValidationProblem(ModelState);
-            }
-
-            try
-            {
-                await _authorService.UpdateAuthor(id, author);
-                return NoContent();
-            }
-            catch (AuthorNotFoundException exception)
-            {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
-                return NotFound($"Author with id: {id} not found.");
-            }
-            catch (Exception exception)
-            {
-                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
-                return InternalServerErrorResult($"Error occurred updating author with id: {id}");
-            }
-        }
-
-        /// <summary>
-        /// Updates an author with provided information.
+        ///   Updates an author with provided information.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="jsonPatchDocument"></param>
@@ -262,27 +152,88 @@ namespace BookStore.API.Controller
             }
         }
 
-        private ObjectResult GetStatusCodeResult(int statusCode, string message)
+        // POST api/<AuthorsController>
+        /// <summary>
+        ///   Creates an author with the provided information.
+        /// </summary>
+        /// <param name="authorCreationDto"></param>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Post([FromBody] AuthorCreationDto authorCreationDto)
         {
-            return StatusCode(statusCode, GetMessageObject(message));
-        }
-
-        private ObjectResult InternalServerErrorResult(string message)
-        {
-            return GetStatusCodeResult(StatusCodes.Status500InternalServerError, message);
-        }
-
-        private string LogModelStateErrors()
-        {
-            var builder = new StringBuilder();
-            var errorKeys = ModelState.Keys.Where(key => ModelState[key].Errors.Any());
-
-            foreach (var key in errorKeys)
+            if (authorCreationDto == null)
             {
-                builder.AppendLine($"{key}: {string.Join(';', ModelState[key].Errors.Select(x => x.ErrorMessage))}");
+                return BadRequest(ModelState);
             }
 
-            return builder.ToString();
+            if (!ModelState.IsValid)
+            {
+                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                var author = await _authorService.CreateAuthor(authorCreationDto);
+                _loggerService.LogInfo($"Author with Id: {author.Id} created");
+
+                return CreatedAtAction(
+                    "Get",
+                    new
+                    {
+                        author.Id
+                    },
+                    author);
+            }
+            catch (Exception exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult("Error occurred creating Author.");
+            }
+        }
+
+        // PUT api/<AuthorsController>/5
+        /// <summary>
+        ///   Updates an author with the provided information.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="author"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Put(Guid id, [FromBody] AuthorUpdateDto author)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(GetMessageObject("Invalid identifier."));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _loggerService.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                await _authorService.UpdateAuthor(id, author);
+                return NoContent();
+            }
+            catch (AuthorNotFoundException exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return NotFound($"Author with id: {id} not found.");
+            }
+            catch (Exception exception)
+            {
+                _loggerService.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult($"Error occurred updating author with id: {id}");
+            }
         }
     }
 }
