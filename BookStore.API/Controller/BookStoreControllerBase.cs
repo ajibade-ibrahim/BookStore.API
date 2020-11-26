@@ -1,16 +1,25 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BookStore.API.Controller
 {
     public class BookStoreControllerBase : ControllerBase
     {
+        protected const string InvalidIdentifier = "Invalid identifier.";
+
+        protected void LogModelStateErrors(ILogger logger)
+        {
+            logger.LogError($"ModelState Errors: . {Environment.NewLine} {GetModelStateErrors()}");
+        }
+
         protected static object GetMessageObject(string message)
         {
             return new
@@ -32,7 +41,8 @@ namespace BookStore.API.Controller
         protected string GetModelStateErrors()
         {
             var builder = new StringBuilder();
-            var errorKeys = ModelState.Keys.Where(key => ModelState[key].Errors.Any());
+            var errorKeys = ModelState.Keys.Where(key => ModelState[key].Errors.Any()).ToList();
+            builder.Append($"Error count: {errorKeys.Count}");
 
             foreach (var key in errorKeys)
             {

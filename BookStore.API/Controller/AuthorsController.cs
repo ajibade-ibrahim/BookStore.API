@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BookStore.API.Contracts;
 using BookStore.API.Extensions;
 using BookStore.Domain.Entities.Dto;
 using BookStore.Domain.Exceptions;
@@ -98,7 +97,7 @@ namespace BookStore.API.Controller
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(GetMessageObject("Invalid identifier."));
+                return BadRequest(GetMessageObject(InvalidIdentifier));
             }
 
             _logger.LogInformation($"Getting author with id: {id}");
@@ -133,7 +132,7 @@ namespace BookStore.API.Controller
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(GetMessageObject("Invalid identifier."));
+                return BadRequest(GetMessageObject(InvalidIdentifier));
             }
 
             try
@@ -171,7 +170,7 @@ namespace BookStore.API.Controller
 
             if (!ModelState.IsValid)
             {
-                _logger.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
+                LogModelStateErrors(_logger);
                 return ValidationProblem(ModelState);
             }
 
@@ -211,12 +210,12 @@ namespace BookStore.API.Controller
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(GetMessageObject("Invalid identifier."));
+                return BadRequest(GetMessageObject(InvalidIdentifier));
             }
 
             if (!ModelState.IsValid)
             {
-                _logger.LogError($"Invalid ModelState. {Environment.NewLine} {GetModelStateErrors()}");
+                LogModelStateErrors(_logger);
                 return ValidationProblem(ModelState);
             }
 
