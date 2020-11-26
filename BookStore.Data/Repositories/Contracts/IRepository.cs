@@ -8,6 +8,7 @@ namespace BookStore.Data.Repositories.Contracts
     {
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<T> GetByIdAsync(Guid id);
+        Task<bool> Exists(Guid id);
         void Add(T entity);
         void Update(T entity);
         Task Delete(Guid id);

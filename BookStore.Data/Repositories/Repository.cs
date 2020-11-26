@@ -17,6 +17,11 @@ namespace BookStore.Data.Repositories
             _table = dbContext.Set<T>();
         }
 
+        public async Task<bool> Exists(Guid id)
+        {
+            return await _table.FindAsync(id) != null;
+        }
+
         public void Add(T entity)
         {
             _table.Add(entity);
