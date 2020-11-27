@@ -172,5 +172,39 @@ namespace BookStore.API.Controller
                 return InternalServerErrorResult("Error occurred updating book with id: {id}.");
             }
         }
+
+        /// <summary>
+        /// Deletes the book with the specified id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteBook(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(InvalidIdentifier);
+            }
+
+            try
+            {
+                await _bookService.DeleteBookAsync(id);
+                return NoContent();
+            }
+            catch (BookNotFoundException exception)
+            {
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return NotFound($"Book with id:{id} not found.");
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult("Error occurred deleting book with id: {id}.");
+            }
+        }
     }
 }
