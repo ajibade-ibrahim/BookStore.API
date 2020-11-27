@@ -4,5 +4,75 @@
         <name>BookStore.API</name>
     </assembly>
     <members>
+        <member name="M:BookStore.API.Controller.AuthorsController.Delete(System.Guid)">
+            <summary>
+              Deletes the author with the specified id.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Get">
+            <summary>
+              Gets all existing authors
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Get(System.Guid)">
+            <summary>
+              Gets author with the specified id.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Patch(System.Guid,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{BookStore.Domain.Entities.Dto.AuthorUpdateDto})">
+            <summary>
+              Updates an author with provided information.
+            </summary>
+            <param name="id"></param>
+            <param name="jsonPatchDocument"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Post(BookStore.Domain.Entities.Dto.AuthorCreationDto)">
+            <summary>
+              Creates an author with the provided information.
+            </summary>
+            <param name="authorCreationDto"></param>
+        </member>
+        <member name="M:BookStore.API.Controller.AuthorsController.Put(System.Guid,BookStore.Domain.Entities.Dto.AuthorUpdateDto)">
+            <summary>
+              Updates an author with the provided information.
+            </summary>
+            <param name="id"></param>
+            <param name="author"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.BooksController.GetBook(System.Guid)">
+            <summary>
+              Gets a book with the specified id.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.BooksController.GetBooks">
+            <summary>
+              Gets all books.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.BooksController.CreateBook(BookStore.Domain.Entities.Dto.BookCreationDto)">
+            <summary>
+            Creates a book with the provided information.
+            </summary>
+            <param name="book"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore.API.Controller.BooksController.UpdateBook(System.Guid,BookStore.Domain.Entities.Dto.BookUpdateDto)">
+            <summary>
+            Updates a book with the provided information.
+            </summary>
+            <param name="id"></param>
+            <param name="book"></param>
+            <returns></returns>
+        </member>
     </members>
 </doc>
