@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using AutoMapper;
+using BookStore.API.Data;
 using BookStore.API.Extensions;
 using BookStore.Data;
 using BookStore.Data.Repositories;
@@ -25,6 +26,7 @@ namespace BookStore.API
 {
     public class Startup
     {
+        private const string AllowAllPolicy = "BlazorAppPolicy";
         private const string ApplicationProblemJson = "application/problem+json";
 
         private static Action<ApiBehaviorOptions> ApiBehaviorOptionsSetupAction()
@@ -68,9 +70,14 @@ namespace BookStore.API
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            ILoggerFactory loggerFactory,
+            UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
-            loggerFactory.AddFile($"Logs/{DateTime.Today.ToShortDateString()}_logfile.txt");
+            loggerFactory.AddFile($"Logs/{DateTime.Today:dd-MM-yyyy}_logfile.txt");
 
             if (env.IsDevelopment())
             {
@@ -85,6 +92,8 @@ namespace BookStore.API
                 app.UseHsts();
             }
 
+            app.UseCors(AllowAllPolicy);
+            SeedData.Seed(userManager, roleManager).Wait();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.AddSwaggerConfiguration();
@@ -100,11 +109,12 @@ namespace BookStore.API
                 options => options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"),
                     sqlServerOptionsAction => sqlServerOptionsAction.MigrationsAssembly("BookStore.Data")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<BookStoreDbContext>();
             services.AddCors(
                 setup => setup.AddPolicy(
-                    "BlazorAppPolicy",
+                    AllowAllPolicy,
                     policy =>
                     {
                         policy.AllowAnyOrigin();
