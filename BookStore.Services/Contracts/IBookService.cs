@@ -11,5 +11,6 @@ namespace BookStore.Services.Contracts
         Task<BookDto> GetBookAsync(Guid id);
         Task<BookDto> CreateBookAsync(BookCreationDto bookCreationDto);
         Task UpdateBookAsync(Guid id, BookUpdateDto bookUpdateDto);
+        Task DeleteBookAsync(Guid id);
     }
 }

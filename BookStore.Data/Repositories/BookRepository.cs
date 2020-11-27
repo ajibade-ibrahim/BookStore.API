@@ -22,5 +22,11 @@ namespace BookStore.Data.Repositories
             Update(book);
             await SaveAsync();
         }
+
+        public async Task DeleteBookAsync(Book book)
+        {
+            Delete(book);
+            await SaveAsync();
+        }
     }
 }

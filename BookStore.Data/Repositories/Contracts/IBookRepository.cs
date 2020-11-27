@@ -7,5 +7,6 @@ namespace BookStore.Data.Repositories.Contracts
     {
         public Task CreateBookAsync(Book book);
         public Task UpdateBookAsync(Book book);
+        public Task DeleteBookAsync(Book book);
     }
 }

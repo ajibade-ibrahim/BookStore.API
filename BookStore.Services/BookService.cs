@@ -70,5 +70,19 @@ namespace BookStore.Services
             _mapper.Map(bookUpdateDto, book);
             await _bookRepository.UpdateBookAsync(book);
         }
+
+        public async Task DeleteBookAsync(Guid id)
+        {
+            ValidateId(id);
+
+            var book = await _bookRepository.GetByIdAsync(id);
+
+            if (book == null)
+            {
+                throw new BookNotFoundException(id);
+            }
+
+            await _bookRepository.DeleteBookAsync(book);
+        }
     }
 }
