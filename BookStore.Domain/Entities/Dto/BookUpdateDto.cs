@@ -3,12 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BookStore.Domain.Entities.Dto
 {
-    public class BookDto
+    public class BookUpdateDto
     {
-        public AuthorDto Author { get; set; }
-
-        public Guid AuthorId { get; set; }
-        public Guid Id { get; set; }
         public string ImageUrl { get; set; }
 
         [StringLength(50)]

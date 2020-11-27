@@ -16,5 +16,11 @@ namespace BookStore.Data.Repositories
             Add(book);
             await SaveAsync();
         }
+
+        public async Task UpdateBookAsync(Book book)
+        {
+            Update(book);
+            await SaveAsync();
+        }
     }
 }

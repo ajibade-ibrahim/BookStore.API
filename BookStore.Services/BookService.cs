@@ -23,13 +23,13 @@ namespace BookStore.Services
         private readonly IAuthorRepository _authorRepository;
         private readonly IMapper _mapper;
 
-        public async Task<IReadOnlyList<BookDto>> GetAllBooks()
+        public async Task<IReadOnlyList<BookDto>> GetAllBooksAsync()
         {
             var books = await _bookRepository.GetAllAsync();
             return _mapper.Map<IReadOnlyList<BookDto>>(books);
         }
 
-        public async Task<BookDto> GetBook(Guid id)
+        public async Task<BookDto> GetBookAsync(Guid id)
         {
             ValidateId(id);
 
@@ -37,7 +37,7 @@ namespace BookStore.Services
             return book == null ? null : _mapper.Map<BookDto>(book);
         }
 
-        public async Task<BookDto> CreateBook(BookCreationDto bookCreationDto)
+        public async Task<BookDto> CreateBookAsync(BookCreationDto bookCreationDto)
         {
             ValidateEntity(bookCreationDto);
             ValidateId(bookCreationDto.AuthorId);
@@ -53,6 +53,22 @@ namespace BookStore.Services
             await _bookRepository.CreateBookAsync(book);
 
             return _mapper.Map<BookDto>(book);
+        }
+
+        public async Task UpdateBookAsync(Guid id, BookUpdateDto bookUpdateDto)
+        {
+            ValidateId(id);
+            ValidateEntity(bookUpdateDto);
+
+            var book = await _bookRepository.GetByIdAsync(id);
+
+            if (book == null)
+            {
+                throw new BookNotFoundException(id);
+            }
+
+            _mapper.Map(bookUpdateDto, book);
+            await _bookRepository.UpdateBookAsync(book);
         }
     }
 }

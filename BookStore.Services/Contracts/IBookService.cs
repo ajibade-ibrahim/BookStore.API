@@ -7,8 +7,9 @@ namespace BookStore.Services.Contracts
 {
     public interface IBookService
     {
-        Task<IReadOnlyList<BookDto>> GetAllBooks();
-        Task<BookDto> GetBook(Guid id);
-        Task<BookDto> CreateBook(BookCreationDto bookCreationDto);
+        Task<IReadOnlyList<BookDto>> GetAllBooksAsync();
+        Task<BookDto> GetBookAsync(Guid id);
+        Task<BookDto> CreateBookAsync(BookCreationDto bookCreationDto);
+        Task UpdateBookAsync(Guid id, BookUpdateDto bookUpdateDto);
     }
 }
