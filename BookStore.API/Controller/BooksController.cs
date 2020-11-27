@@ -139,7 +139,7 @@ namespace BookStore.API.Controller
         /// <param name="id"></param>
         /// <param name="book"></param>
         /// <returns></returns>
-        [HttpPut("{id")]
+        [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
