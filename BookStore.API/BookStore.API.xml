@@ -59,5 +59,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:BookStore.API.Controller.BooksController.CreateBook(BookStore.Domain.Entities.Dto.BookCreationDto)">
+            <summary>
+            Creates a book with the provided information.
+            </summary>
+            <param name="book"></param>
+            <returns></returns>
+        </member>
     </members>
 </doc>

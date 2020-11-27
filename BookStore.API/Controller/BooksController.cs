@@ -42,7 +42,7 @@ namespace BookStore.API.Controller
 
             try
             {
-                var book = await _bookService.GetBook(id);
+                var book = await _bookService.GetBookAsync(id);
 
                 if (book != null)
                 {
@@ -73,7 +73,7 @@ namespace BookStore.API.Controller
 
             try
             {
-                return Ok(await _bookService.GetAllBooks());
+                return Ok(await _bookService.GetAllBooksAsync());
             }
             catch (Exception exception)
             {
@@ -112,7 +112,7 @@ namespace BookStore.API.Controller
 
             try
             {
-                var bookDto = await _bookService.CreateBook(book);
+                var bookDto = await _bookService.CreateBookAsync(book);
                 return CreatedAtAction(
                     "GetBook",
                     new
@@ -130,6 +130,46 @@ namespace BookStore.API.Controller
             {
                 _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
                 return InternalServerErrorResult("Error occurred retrieving books.");
+            }
+        }
+
+        /// <summary>
+        /// Updates a book with the provided information.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="book"></param>
+        /// <returns></returns>
+        [HttpPut("{id")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateBook(Guid id, [FromBody] BookUpdateDto book)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(InvalidIdentifier);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                await _bookService.UpdateBookAsync(id, book);
+                return NoContent();
+            }
+            catch (BookNotFoundException exception)
+            {
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return NotFound($"Book with id:{id} not found.");
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error occurred: {exception.GetMessageWithStackTrace()}");
+                return InternalServerErrorResult("Error occurred updating book with id: {id}.");
             }
         }
     }
