@@ -23,7 +23,7 @@ namespace BookStore.Domain.Entities.Dto
         [StringLength(100)]
         public string Title { get; set; }
 
-        [MaxLength(4)]
+        [Range(1700, 9999)]
         public int? Year { get; set; }
     }
 }

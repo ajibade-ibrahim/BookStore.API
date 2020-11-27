@@ -26,7 +26,8 @@ namespace BookStore.Domain.Entities
         public string Title { get; set; }
         public string Summary { get; set; }
 
-        [MaxLength(4)]
+        [Range(1700, 9999)]
+
         public int? Year { get; set; }
     }
 }
