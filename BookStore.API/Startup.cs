@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 using AutoMapper;
 using BookStore.API.Data;
 using BookStore.API.Extensions;
+using BookStore.API.Models;
 using BookStore.Data;
 using BookStore.Data.Repositories;
 using BookStore.Data.Repositories.Contracts;
 using BookStore.Services;
 using BookStore.Services.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +24,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace BookStore.API
@@ -128,6 +134,22 @@ namespace BookStore.API
             services.AddScoped<IBookService, BookService>();
             services.AddScoped<IBookRepository, BookRepository>();
             services.AddAutoMapper(Assembly.Load("BookStore.Services"));
+
+            var jwtConfig = Configuration.GetSection("Jwt").Get<JwtConfiguration>();
+            services.AddSingleton(jwtConfig);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(
+                    options => options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtConfig.Issuer,
+                        ValidAudience = jwtConfig.Issuer,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key))
+                    });
+
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction())
                 .AddNewtonsoftJson(
