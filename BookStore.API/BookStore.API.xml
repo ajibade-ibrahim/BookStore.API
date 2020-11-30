@@ -74,5 +74,12 @@
             <param name="book"></param>
             <returns></returns>
         </member>
+        <member name="M:BookStore.API.Controller.BooksController.DeleteBook(System.Guid)">
+            <summary>
+            Deletes the book with the specified id.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
     </members>
 </doc>
