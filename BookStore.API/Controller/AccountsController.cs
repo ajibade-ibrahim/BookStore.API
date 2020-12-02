@@ -38,22 +38,19 @@ namespace BookStore.API.Controller
 
         [Route("/login")]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] UserLoginModel userLoginModel)
+        public async Task<IActionResult> Login([FromBody] UserLoginModel loginModel)
         {
-            if (userLoginModel == null)
+            if (loginModel == null)
             {
                 return BadRequest();
             }
 
-            var result = await _signInManager.PasswordSignInAsync(userLoginModel.Username, userLoginModel.Password, true, false);
+            var result =
+                await _signInManager.PasswordSignInAsync(loginModel.Username, loginModel.Password, true, false);
 
-            if (result?.Succeeded == true)
-            {
-                var token = await GenerateJwtToken(await _userManager.FindByNameAsync(userLoginModel.Username));
-                return Ok(token);
-            }
-
-            return Unauthorized(userLoginModel);
+            return result?.Succeeded != true
+                ? (IActionResult)Unauthorized(loginModel)
+                : Ok(await GenerateJwtToken(await _userManager.FindByNameAsync(loginModel.Username)));
         }
 
         /// <summary>
@@ -101,9 +98,15 @@ namespace BookStore.API.Controller
                 }
             }
 
-            result?.Errors.ToList().ForEach(error => _logger.LogError($"{error.Code}: {error.Description}"));
+            var identityErrors = result?.Errors.ToList() ?? new List<IdentityError>();
+            var errorDescriptions = string.Join(
+                Environment.NewLine,
+                identityErrors.Select(error => $"{error.Code}: {error.Description}"));
 
-            return InternalServerErrorResult($"Registration failed for user: {model.Username}");
+            var errorMessage =
+                $"Registration failed for user: {model.Username} {Environment.NewLine} {errorDescriptions}";
+            _logger.LogError(errorMessage);
+            return InternalServerErrorResult(errorMessage);
         }
 
         private async Task<string> GenerateJwtToken(IdentityUser user)
