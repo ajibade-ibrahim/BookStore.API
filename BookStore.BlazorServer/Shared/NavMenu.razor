@@ -5,29 +5,31 @@
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div class="" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+                <span class="oi oi-home"></span> Home
             </NavLink>
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="authors">
-                <span class="oi oi-people" aria-hidden="true"></span> Authors
+                <span class="oi oi-people"></span> Authors
             </NavLink>
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="books">
-                <span class="oi oi-book" aria-hidden="true"></span> Books
+                <span class="oi oi-book"></span> Books
             </NavLink>
-        </li>    <li class="nav-item px-3">
+        </li>
+        <li class="nav-item px-3">
             <NavLink class="nav-link" href="register">
-                <span class="oi oi-signpost" aria-hidden="true"></span> Register
+                <span class="oi oi-signpost"></span> Register
             </NavLink>
-        </li>    <li class="nav-item px-3">
+        </li>
+        <li class="nav-item px-3">
             <NavLink class="nav-link" href="login">
-                <span class="oi oi-account-login" aria-hidden="true"></span> Login
+                <span class="oi oi-account-login"></span> Login
             </NavLink>
         </li>
     </ul>
@@ -36,10 +38,14 @@
 @code {
     private bool collapseNavMenu = true;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string NavMenuCssClass
+    {
+        get => collapseNavMenu ? "collapse" : null;
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
 }
