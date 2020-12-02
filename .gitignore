@@ -340,3 +340,5 @@ ASALocalRun/
 healthchecksdb
 /BookStore.API/Logs
 /BookStore.API/Assets
+/BookStore.BlazorServer/sb-admin-2-gh-pages
+/BookStore.BlazorServer/wwwroot/template
