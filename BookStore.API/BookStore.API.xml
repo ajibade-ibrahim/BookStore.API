@@ -4,6 +4,13 @@
         <name>BookStore.API</name>
     </assembly>
     <members>
+        <member name="M:BookStore.API.Controller.AccountsController.Register(BookStore.API.Models.UserRegistrationModel)">
+            <summary>
+              Registers a user with the given credentials.
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
         <member name="M:BookStore.API.Controller.AuthorsController.Delete(System.Guid)">
             <summary>
               Deletes the author with the specified id.
