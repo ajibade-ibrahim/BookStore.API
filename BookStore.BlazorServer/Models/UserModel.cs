@@ -15,6 +15,7 @@ namespace BookStore.BlazorServer.Models
 
     public class LoginModel : UserModel
     {
+        public bool RememberMe { get; set; }
     }
 
     public class RegistrationModel : UserModel
