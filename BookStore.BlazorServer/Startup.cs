@@ -1,12 +1,17 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
-using BookStore.BlazorServer.Data;
+using Blazored.LocalStorage;
+using BookStore.BlazorServer.HttpHandlers;
+using BookStore.BlazorServer.Providers;
 using BookStore.BlazorServer.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 
 namespace BookStore.BlazorServer
 {
@@ -53,10 +58,19 @@ namespace BookStore.BlazorServer
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
-            services.AddScoped<HttpClient>();
-            services.AddScoped<AccountService>();
-            services.AddScoped(provider => new UrlService(Configuration["ApiBaseUrl"]));
+            services.AddTransient<BearerTokenHandler>();
+            services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+            services.AddHttpClient<AccountService>(
+                    client =>
+                    {
+                        client.BaseAddress = new Uri(Configuration["ApiBaseUrl"]);
+                        client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+                    })
+                .AddHttpMessageHandler<BearerTokenHandler>();
+            services.AddBlazoredLocalStorage();
+            services.AddScoped<JwtSecurityTokenHandler>();
+
+            //services.AddScoped<AccountService>();
         }
     }
 }
