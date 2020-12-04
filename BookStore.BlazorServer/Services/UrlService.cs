@@ -1,32 +1,27 @@
 ﻿namespace BookStore.BlazorServer.Services
 {
-    public class UrlService
+    public static class UrlService
     {
-        public string AuthorsEndpoint
+        public static string AuthorsEndpoint
         {
-            get => $"{BaseUrl}/Authors";
+            get => "/Authors";
         }
 
-        public string BaseUrl { get; set; }
+        public static string BaseUrl { get; set; }
 
-        public string BooksEndpoint
+        public static string BooksEndpoint
         {
-            get => $"{BaseUrl}/Books";
+            get => "/Books";
         }
 
-        public string LoginEndpoint
+        public static string LoginEndpoint
         {
-            get => $"{BaseUrl}/login";
+            get => "/login";
         }
 
-        public string RegistrationEndpoint
+        public static string RegistrationEndpoint
         {
-            get => $"{BaseUrl}/register";
-        }
-
-        public UrlService(string baseUrl)
-        {
-            BaseUrl = baseUrl;
+            get => "/register";
         }
     }
 }
