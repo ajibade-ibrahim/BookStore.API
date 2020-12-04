@@ -16,7 +16,7 @@ namespace BookStore.BlazorServer.Pages.Account
         public NavigationManager NavigationManager { get; set; }
         public ServiceResponse Response { get; set; } = new ServiceResponse();
 
-        public bool ShowError
+        public bool HasErrorMessage
         {
             get => !string.IsNullOrWhiteSpace(Response?.Message) && !Response.Succeeded;
         }

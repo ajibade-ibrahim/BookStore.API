@@ -9,9 +9,9 @@
             <div class="row">
                 <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
                 <div class="col-lg-7">
-                    @if (ShowError)
+                    @if (HasErrorMessage)
                     {
-                        <div class="mb-4" hidden="@ShowError">
+                        <div class="mb-4">
                             <div class="card bg-danger text-white shadow">
                                 <div class="card-body">
                                     Error occurred:
