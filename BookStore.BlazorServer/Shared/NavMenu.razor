@@ -1,4 +1,8 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@using BookStore.BlazorServer.Services
+@inject AccountService AccountService
+@inject NavigationManager Navigator
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">BookStore.BlazorServer</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -22,16 +26,47 @@
                 <span class="oi oi-book"></span> Books
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="register">
-                <span class="oi oi-signpost"></span> Register
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="oi oi-account-login"></span> Login
-            </NavLink>
-        </li>
+        
+        <AuthorizeView Roles="Administrator">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="books">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> ADMIN LINK
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView Roles="Customer">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="books">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> CUSTOMER LINK
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView>
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">
+                        <span class="oi oi-person"></span> @context.User.Identity.Name
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <button class="nav-link" @onclick="LogOut">
+                        <span class="oi oi-account-logout"></span> Logout
+                    </button>
+                </li>
+            </Authorized>
+            <NotAuthorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">
+                        <span class="oi oi-signpost"></span> Register
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="oi oi-account-login"></span> Login
+                    </NavLink>
+                </li>
+            </NotAuthorized>
+        </AuthorizeView>
     </ul>
 </div>
 
@@ -46,6 +81,12 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task LogOut()
+    {
+        await AccountService.LogOut();
+        Navigator.NavigateTo("/");
     }
 
 }
