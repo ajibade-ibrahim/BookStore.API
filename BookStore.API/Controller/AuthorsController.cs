@@ -4,6 +4,7 @@ using BookStore.API.Extensions;
 using BookStore.Domain.Entities.Dto;
 using BookStore.Domain.Exceptions;
 using BookStore.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace BookStore.API.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AuthorsController : BookStoreControllerBase
     {
         public AuthorsController(IAuthorService authorService, ILogger<AuthorsController> logger)
