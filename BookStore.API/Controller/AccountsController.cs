@@ -130,7 +130,7 @@ namespace BookStore.API.Controller
                 _jwtConfiguration.Issuer,
                 claims,
                 DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.Now.AddHours(1),
                 credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
