@@ -8,7 +8,7 @@ namespace BookStore.Data.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly BookStoreDbContext _dbContext;
+        protected readonly BookStoreDbContext _dbContext;
         private readonly DbSet<T> _table;
 
         public Repository(BookStoreDbContext dbContext)

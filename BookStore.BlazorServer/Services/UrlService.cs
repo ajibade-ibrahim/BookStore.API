@@ -1,4 +1,6 @@
-﻿namespace BookStore.BlazorServer.Services
+﻿using System;
+
+namespace BookStore.BlazorServer.Services
 {
     public static class UrlService
     {
@@ -22,6 +24,16 @@
         public static string RegistrationEndpoint
         {
             get => "accounts/register";
+        }
+
+        public static string GetAuthorEndpoint(string id)
+        {
+            return $"Authors/{id}";
+        }
+
+        public static string GetAuthorEndpoint(Guid id)
+        {
+            return id == Guid.Empty ? throw new ArgumentException(nameof(id)) : GetAuthorEndpoint(id.ToString());
         }
     }
 }

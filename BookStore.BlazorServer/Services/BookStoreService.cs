@@ -63,5 +63,52 @@ namespace BookStore.BlazorServer.Services
                 };
             }
         }
+
+        public async Task<ServiceResponse<AuthorDto>> GetAuthorAsync(string id)
+        {
+            var parsed = Guid.TryParse(id, out var _);
+
+            if (!parsed)
+            {
+                throw new ArgumentException("Invalid Guid passed.", nameof(id));
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Get, UrlService.GetAuthorEndpoint(id));
+
+            try
+            {
+                var authToken = await _localStorage.GetItemAsync<AuthToken>("AuthToken");
+
+                if (!string.IsNullOrWhiteSpace(authToken?.Token))
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("bearer", authToken.Token);
+                }
+
+                var response = await _httpClient.SendAsync(request);
+                var serviceResponse = new ServiceResponse<AuthorDto>
+                {
+                    Succeeded = response.IsSuccessStatusCode,
+                    Message = response.ReasonPhrase,
+                    StatusCode = response.StatusCode
+                };
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return serviceResponse;
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                serviceResponse.Content = JsonConvert.DeserializeObject<AuthorDto>(content);
+                return serviceResponse;
+            }
+            catch (Exception exception)
+            {
+                return new ServiceResponse<AuthorDto>
+                {
+                    Succeeded = false,
+                    Message = exception.Message
+                };
+            }
+        }
     }
 }

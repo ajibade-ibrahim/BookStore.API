@@ -55,7 +55,7 @@ namespace BookStore.Services
         {
             ValidateId(id);
 
-            var author = await _authorRepository.GetByIdAsync(id);
+            var author = await _authorRepository.GetAuthorWithBooksAsync(id);
             return author == null ? null : _mapper.Map<AuthorDto>(author);
         }
 

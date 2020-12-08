@@ -9,5 +9,6 @@ namespace BookStore.Data.Repositories.Contracts
         Task CreateAuthorAsync(Author author);
         Task UpdateAuthorAsync(Author author);
         Task DeleteAuthorAsync(Guid id);
+        Task<Author> GetAuthorWithBooksAsync(Guid id);
     }
 }
