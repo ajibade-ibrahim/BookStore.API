@@ -36,7 +36,7 @@ namespace BookStore.API.Controller
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
 
-        [Route("/login")]
+        [Route("login")]
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] UserLoginModel loginModel)
         {
@@ -58,7 +58,7 @@ namespace BookStore.API.Controller
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Route("/register")]
+        [Route("register")]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] UserRegistrationModel model)
         {
