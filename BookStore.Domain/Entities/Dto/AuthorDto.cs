@@ -21,5 +21,6 @@ namespace BookStore.Domain.Entities.Dto
         public string LastName { get; set; }
 
         public string Profile { get; set; }
+        public string ImageUrl { get; set; }
     }
 }
