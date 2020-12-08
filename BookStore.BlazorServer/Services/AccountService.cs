@@ -29,7 +29,7 @@ namespace BookStore.BlazorServer.Services
         private readonly ILocalStorageService _localStorage;
         private readonly ApiAuthenticationStateProvider _stateProvider;
 
-        public async Task<ServiceResponse> Login(LoginModel loginModel)
+        public async Task<ServiceResponse<string>> Login(LoginModel loginModel)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, UrlService.LoginEndpoint);
             request.Content = JsonContent.Create(loginModel, _jsonMediaTypeHeaderValue);
@@ -38,7 +38,7 @@ namespace BookStore.BlazorServer.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                return new ServiceResponse
+                return new ServiceResponse<string>
                 {
                     Succeeded = response.IsSuccessStatusCode,
                     Message = response.ReasonPhrase
@@ -59,14 +59,14 @@ namespace BookStore.BlazorServer.Services
             }
             else
             {
-                return new ServiceResponse
+                return new ServiceResponse<string>
                 {
                     Succeeded = false,
                     Message = "Unable to retrieve user data."
                 };
             }
 
-            return new ServiceResponse
+            return new ServiceResponse<string>
             {
                 Succeeded = true,
                 Message = $"Successfully logged in as {loginModel.Username}."
@@ -79,7 +79,7 @@ namespace BookStore.BlazorServer.Services
             _stateProvider.LogUserOut();
         }
 
-        public async Task<ServiceResponse> Register(RegistrationModel model)
+        public async Task<ServiceResponse<string>> Register(RegistrationModel model)
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, UrlService.RegistrationEndpoint)
             {
@@ -88,7 +88,7 @@ namespace BookStore.BlazorServer.Services
 
             using var response = await _httpClient.SendAsync(request);
 
-            return new ServiceResponse
+            return new ServiceResponse<string>
             {
                 Succeeded = response.IsSuccessStatusCode,
                 Message = response.ReasonPhrase
