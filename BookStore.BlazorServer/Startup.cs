@@ -60,17 +60,16 @@ namespace BookStore.BlazorServer
             services.AddServerSideBlazor();
             services.AddTransient<BearerTokenHandler>();
             services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
-            services.AddHttpClient<AccountService>(
-                    client =>
-                    {
-                        client.BaseAddress = new Uri(Configuration["ApiBaseUrl"]);
-                        client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
-                    })
-                .AddHttpMessageHandler<BearerTokenHandler>();
+            services.AddHttpClient<AccountService>(HttpClientSetup).AddHttpMessageHandler<BearerTokenHandler>();
+            services.AddHttpClient<BookStoreService>(HttpClientSetup).AddHttpMessageHandler<BearerTokenHandler>();
             services.AddBlazoredLocalStorage();
             services.AddScoped<JwtSecurityTokenHandler>();
+        }
 
-            //services.AddScoped<AccountService>();
+        private void HttpClientSetup(HttpClient client)
+        {
+            client.BaseAddress = new Uri(Configuration["ApiBaseUrl"]);
+            client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
         }
     }
 }
