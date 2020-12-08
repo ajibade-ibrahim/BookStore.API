@@ -4,24 +4,24 @@
     {
         public static string AuthorsEndpoint
         {
-            get => "/Authors";
+            get => "Authors";
         }
 
         public static string BaseUrl { get; set; }
 
         public static string BooksEndpoint
         {
-            get => "/Books";
+            get => "Books";
         }
 
         public static string LoginEndpoint
         {
-            get => "/login";
+            get => "accounts/login";
         }
 
         public static string RegistrationEndpoint
         {
-            get => "/register";
+            get => "accounts/register";
         }
     }
 }
