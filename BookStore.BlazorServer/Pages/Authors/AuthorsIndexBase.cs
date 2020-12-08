@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using BookStore.BlazorServer.Extensions;
 using BookStore.BlazorServer.Models;
 using BookStore.BlazorServer.Services;
 using BookStore.Domain.Entities.Dto;
@@ -38,8 +39,7 @@ namespace BookStore.BlazorServer.Pages.Authors
                 {
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        var uri = $"/login?returnUrl={Navigator.Uri.Replace(Navigator.BaseUri, string.Empty)}";
-                        Navigator.NavigateTo(uri);
+                        Navigator.RedirectToLogin();
                     }
                 }
             }
